@@ -1,0 +1,118 @@
+openapi: "3.0.3"
+info:
+  title: OAuth2 Example
+  version: "1.0"
+servers:
+  - url: https://localhost:3000/api/v1
+    description: 開発環境
+paths:
+  /user:
+    post:
+      tags:
+        - user
+      description: ユーザーを作成する
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        201:
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/user"
+      security:
+        - user_auth: []
+  /user/{userId}:
+    get:
+      tags:
+        - user
+      description: 個別のユーザー情報を取得する
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid ID
+        "404":
+          description: User not found
+      security:
+        - user_auth: []
+    post:
+      tags:
+        - user
+      description: ユーザー情報を更新する
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid ID
+        "404":
+          description: User not found
+      security:
+        - user_auth: []
+    delete:
+      tags:
+        - user
+      description: ユーザーを削除する
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid ID
+        "404":
+          description: User not found
+      security:
+        - user_auth: []
+
+components:
+  schemas:
+    user:
+      title: user schema
+      type: object
+      description: ユーザー情報
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  securitySchemes:
+    user_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /auth/token
